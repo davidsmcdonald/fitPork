@@ -1,0 +1,27 @@
+doctype html
+
+html(lang="en-US")
+
+  head
+    title Todo App
+    meta(charset="UTF-8")
+    link(rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans")
+    link(rel="stylesheet" href="/stylesheets/whitespace-reset.css")
+    link(rel="stylesheet" href="/stylesheets/application.css")
+  body
+    header(class="primary_nav")
+      img(src="/images/logo_text.png")
+      a(href="/reviews" class='nav_link') REVIEWS
+      a(href="/search" class='nav_link') SEARCH
+      
+
+    main
+      - let kinds = Object.keys(flash || {});
+      if kinds.length > 0
+        ul
+          each kind in kinds
+            each message in flash[kind]
+              li.flash(class=kind)= message
+      block main
+      
+      block headerLinks

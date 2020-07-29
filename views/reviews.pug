@@ -1,0 +1,15 @@
+extends layout
+
+block main
+  if reviews === undefined || reviewLists.length === 0
+    p#no_list You don't have any reviews. Why not create one?
+  else
+    ul#lists
+      each review in reviewLists
+        li
+          a(href=`/review/${review.id}`)
+            h2= todoList.title
+
+block headerLinks
+  .actions
+    a.add(href="/review/new") Add a review
