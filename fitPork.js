@@ -30,7 +30,7 @@ app.use(session({
   name: 'fit-pork-session-id',
   resave: false,
   saveUninitialized: true,
-  secret: 'the big secret',
+  secret: 'Fastbananamonkey1969',
   store: new LokiStore({}),
 }));
 
