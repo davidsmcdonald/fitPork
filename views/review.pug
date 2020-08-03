@@ -1,4 +1,20 @@
 extends layout
 
 block main
-  div(class=".album")
+  div(class="container")
+    h2(class="item artist")= review.artist
+    h1(class="item title")= review.title
+    div(class="item cover")
+      img(src=`${review.cover_art}`)
+    div(class="item score-box")  
+      div(class="score-circle")
+        span(class="score")= review.score*0.1
+  div(class="review_container")
+    p(class="review_text")= review.review_text
+    a(class="review_edit" href=`/reviews/${review.id}/edit`) ... edit review
+    
+block headerLinks
+  .actions
+    a.add(href="/reviews/new") Add a review
+    div
+      img(src="/images/logo.png" alt="flying pigs logo"  class="logo")

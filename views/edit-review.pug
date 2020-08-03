@@ -1,7 +1,7 @@
 extends layout
 
 block main
-  form(action="/review" method="post")
+  form(action=`/reviews/${review.id}/edit` method="post")
     dl
       dt
         label(for="artist") Enter the artist name for your new review:
@@ -9,8 +9,7 @@ block main
         input(type="text"
               id="artist"
               name="artist"
-              placeholder="Artist"
-              value=artist)
+              value=artist || review.artist)
               
       dt
         label(for="title") Enter the album title for your new review:
@@ -19,7 +18,7 @@ block main
               id="title"
               name="title"
               placeholder="Title"
-              value=title)
+              value=title || review.title)
       dt
         label(for="score") Enter the rating for your new review (0-100):
       dd
@@ -27,25 +26,24 @@ block main
               id="score"
               name="score"
               placeholder="Score"
-              value=score)
+              value=score || review.score)
               
       dt
-        label(for="cover_url") Enter the url for your album art (.jpg .gif or .png):
+        label(for="cover_url") Enter the url for your album art.  You can find most at #[a(href="https://musicbrainz.org/") musicbrainz.org]. Jpg, gif, or png formats only, please: 
       dd
         input(type="text"
               id="url"
               name="url"
               placeholder="https://..."
-              value=url)
+              value=url || review.cover_art)
               
       dt
         label(for="reviewText") Enter the text of your review:
       dd
         textarea(id="reviewText"
               name="reviewText"
-              placeholder="Review Text"
-              value=reviewText)
+              placeholder="Review text") #{review.review_text}
 
     fieldset.actions
       input(type="submit" value="Save")
-      a(href="/reviews") Cancel
+      a(href=`/reviews/${review.id}`) Cancel

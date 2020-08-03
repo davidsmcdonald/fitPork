@@ -4,12 +4,13 @@ const flash = require('express-flash');
 const session = require('express-session');
 const { body, validationResult } = require('express-validator');
 const store = require('connect-loki');
+const config = require('./lib/config');
 const PgPersistence = require('./lib/pg-persistence');
 const catchError = require('./lib/catch-error');
 
 const app = express();
-const host = 'localhost';
-const port = 3001;
+const host = config.HOST;
+const port = config.PORT;
 const LokiStore = store(session);
 
 app.set('views', './views');
@@ -122,18 +123,34 @@ app.post('/review',
     body('title')
       .trim()
       .isLength({ min: 1 })
-      .withMessage('The list title is required.')
+      .withMessage('The album title is required.')
       .isLength({ max: 100 })
-      .withMessage('List title must be between 1 and 100 characters.')
+      .withMessage('Album must be between 1 and 100 characters.'),
+    body('artist')
+      .trim()
+      .isLength({ min: 1, max: 100 })
+      .withMessage('The artist is required.')
+      .withMessage('Artist name must be between 1 and 100 characters.'),
+    body('score')
+      .isInt({ min: 0, max: 100 })
+      .withMessage('Rating must be an integer between 0 and 100'),
+    body('url')
+      .isURL()
+      .matches(/.*(?:jpg|gif|png)/)
+      .isLength({ max: 300 })
+      .withMessage('Must be a valid URL ending in .jpg .gif or .png'),
   ],
   catchError(async (req, res) => {
     const errors = validationResult(req);
-    const { title, artist } = req.body;
+    let { title, artist, score, reviewText, url } = req.body;
 
     const rerenderNewList = () => {
       res.render('new-review', {
         title,
         artist,
+        score,
+        reviewText,
+        url,
         flash: req.flash(),
       });
     };
@@ -142,13 +159,12 @@ app.post('/review',
       errors.array().forEach((message) => req.flash('error', message.msg));
       rerenderNewList();
     } else {
-      const created = await res.locals.store.createReview(title, artist);
+      const created = await res.locals.store.createReview(title, artist, score, reviewText, url);
       if (!created) {
         req.flash('error', 'The review title must be unique.');
         rerenderNewList();
       } else {
-        req.flash('success', 'The todo list has been created.');
-        res.redirect('/lists');
+        res.redirect('/reviews');
       }
     }
   }));
@@ -183,9 +199,9 @@ app.get('/reviews/:reviewId/edit',
   requiresAuthentication,
   catchError(async (req, res, next) => {
     const { reviewId } = req.params;
-    const review = res.locals.store.loadReview(+reviewId);
+    const review = await res.locals.store.loadReview(+reviewId);
     if (!review) throw new Error('Not found.');
-
+    console.log(review);
     res.render('edit-review', { review });
   }));
 
@@ -196,13 +212,27 @@ app.post('/reviews/:reviewId/edit',
     body('title')
       .trim()
       .isLength({ min: 1 })
-      .withMessage('The list title is required.')
+      .withMessage('The album title is required.')
       .isLength({ max: 100 })
-      .withMessage('Review title must be between 1 and 100 characters.')
+      .withMessage('Album must be between 1 and 100 characters.'),
+    body('artist')
+      .trim()
+      .isLength({ min: 1 })
+      .withMessage('The artist is required.')
+      .isLength({ max: 100 })
+      .withMessage('Artist name must be between 1 and 100 characters.'),
+    body('score')
+      .isInt({ min: 0, max: 100 })
+      .withMessage('Rating must be an integer between 0 and 100'),
+    body('url')
+      .isURL()
+      .matches(/.*(?:jpg|gif|png)/)
+      .isLength({ max: 300 })
+      .withMessage('Must be a valid URL ending in .jpg .gif or .png'),
   ],
   catchError(async (req, res, next) => {
     const { reviewId } = req.params;
-    const { title, artist } = req.body;
+    const { title, artist, score, url, reviewText } = req.body;
 
     const rerenderEditReview = async () => {
       const review = await res.locals.store.loadReview(+reviewId);
@@ -210,31 +240,25 @@ app.post('/reviews/:reviewId/edit',
 
       res.render('edit-review', {
         title,
-        review,
         artist,
+        score,
+        reviewText,
+        url,
         flash: req.flash(),
       });
     };
 
-    try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        errors.array().forEach((message) => req.flash('error', message.msg));
-        rerenderEditReview();
-      } else {
-        const updated = await res.locals.store.updateReview(+reviewId, title, artist);
-        if (!updated) throw new Error('Not found.');
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      errors.array().forEach((message) => req.flash('error', message.msg));
+      rerenderEditReview();
+    } else {
+      const updated = await res.locals.store
+        .updateReview(+reviewId, title, artist, score, reviewText, url);
+      if (!updated) throw new Error('Not found.');
 
-        req.flash('success', 'Review updated.');
-        res.redirect(`/lists/${reviewId}`);
-      }
-    } catch (error) {
-      if (store.isUniqueConstraintViolation(error)) {
-        req.flash('error', 'The list title must be unique.');
-        rerenderEditReview();
-      } else {
-        throw error;
-      }
+      req.flash('success', 'Review updated.');
+      res.redirect(`/reviews/${reviewId}`);
     }
   }));
 
@@ -248,3 +272,17 @@ app.use((err, req, res, _next) => {
 app.listen(port, host, () => {
   console.log(`Todos is listening on port ${port} of ${host}!`);
 });
+
+// app.use(session({
+//   cookie: {
+//     httpOnly: true,
+//     maxAge: 31 * 24 * 60 * 60 * 1000, // 31 days in millseconds
+//     path: '/',
+//     secure: false,
+//   },
+//   name: 'launch-school-todos-session-id',
+//   resave: false,
+//   saveUninitialized: true,
+//   secret: 'this is not very secure',
+//   store: new LokiStore({}),
+// }));
