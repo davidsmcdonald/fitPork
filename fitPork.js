@@ -23,7 +23,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(session({
   cookie: {
     httpOnly: true,
-    maxAge: 31 * 24 * 60 * 60 * 1000, // 31 days in millseconds
+    // maxAge: 31 * 24 * 60 * 60 * 1000, // 31 days in millseconds
     path: '/',
     secure: false,
   },
@@ -76,8 +76,18 @@ app.get('/reviews',
     });
   }));
 
+app.get('/search',
+  requiresAuthentication,
+  catchError(async (req, res) => {
+    if (!res.locals.signedIn) res.redirect('/users/signin');
+    res.render('search');
+  })
+);
+
+
+
 app.get('/users/signin', (req, res) => {
-  req.flash('info', 'Please sign in.');
+  req.flash('info', 'Please sign in or sign up! Log in with username: "admin" and password: "testpassword" to view a sample collection.');
   res.render('signin', {
     flash: req.flash(),
   });
@@ -102,6 +112,26 @@ app.post('/users/signin',
       res.redirect('/reviews');
     }
   }));
+
+app.post('/users/signup',
+  catchError(async (req, res) => {
+    const username = req.body.username.trim();
+    const { password } = req.body;
+
+    const validUsername = await res.locals.store.uniqueUser(username);
+    if (!validUsername) {
+      req.flash('error', 'Username already exists, try another or sign in.');
+      res.render('signin', {
+        flash: req.flash(),
+      });
+    } else {
+      const add_user = await res.locals.store.addUser(username, password);
+      req.session.username = username;
+      req.session.signedIn = true;
+      req.flash('info', 'Welcome!');
+      res.redirect('/reviews');
+    }
+    }));
 
 app.post('/users/signout', (req, res) => {
   delete req.session.username;
@@ -182,12 +212,32 @@ app.get('/reviews/:reviewId',
     });
   }));
 
+  app.get('/searchy',
+    requiresAuthentication,
+    catchError(async (req, res) => {
+      const search_term = req.query.search;
+
+      const reviewList = await res.locals.store.loadReviews(search_term);
+      if (reviewList === undefined) throw new Error('Not found.');
+
+      if (reviewList.length === 0) {
+        req.flash('info', `No artist or title matches "${search_term}"`);
+        res.render('search', {
+          flash: req.flash(),
+        });
+      } else {
+        res.render('reviews', {
+          reviewList,
+        });
+      }
+    }));
+
 // Delete a review
 app.post('/reviews/:reviewId/destroy',
   requiresAuthentication,
   catchError(async (req, res) => {
     const { reviewId } = req.params;
-    const deleted = await res.locals.store.removeReview(+reviewId);
+    const deleted = await res.locals.store.deleteReview(+reviewId);
     if (!deleted) throw new Error('Not found.');
     req.flash('success', 'The review has been deleted.');
 
@@ -201,7 +251,6 @@ app.get('/reviews/:reviewId/edit',
     const { reviewId } = req.params;
     const review = await res.locals.store.loadReview(+reviewId);
     if (!review) throw new Error('Not found.');
-    console.log(review);
     res.render('edit-review', { review });
   }));
 

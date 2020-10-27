@@ -29,7 +29,7 @@ block main
               value=score || review.score)
               
       dt
-        label(for="cover_url") Enter the url for your album art.  You can find most at #[a(href="https://musicbrainz.org/") musicbrainz.org]. Jpg, gif, or png formats only, please: 
+        label(for="cover_url") Enter the url for your album art.  You can find most at #[a(href="https://musicbrainz.org/") musicbrainz.org]. jpg, gif, or png formats only!: 
       dd
         input(type="text"
               id="url"
@@ -47,3 +47,4 @@ block main
     fieldset.actions
       input(type="submit" value="Save")
       a(href=`/reviews/${review.id}`) Cancel
+      input(type="submit" formaction=`/reviews/${review.id}/destroy` value="Delete Review" class="delete-review")

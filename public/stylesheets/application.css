@@ -70,6 +70,24 @@ form input[type="submit"]:hover {
   cursor: pointer;
 }
 
+form input[type="submit"].delete-review {
+  border: 0;
+  color: #3f3f3f;
+  background-color: #f7f7f7;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+form input[type="submit"].delete-review:hover {
+  color: #db278a;
+  cursor: pointer;
+}
+
+form fieldset.actions a {
+  font-style: italic;
+  margin-left: 30px;
+}
+
 form fieldset.actions a:hover {
   color: #db278a;
 }
@@ -78,6 +96,19 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+button {
+  border: 0;
+  background-color: #f7f7f7;
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+button:hover {
+  color: #db278a;
+  cursor: pointer;
+}
+
 header {
   background: #1a1a1a;
   width: 100%;

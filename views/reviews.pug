@@ -14,5 +14,8 @@ block main
 block headerLinks
   .actions
     a.add(href="/reviews/new") Add a review
+    form(method="post" action="/users/signout")
+      input(type="hidden" name="extra_submit_param" value="extra_submit_value")
+      button(type="submit" value="") Sign Out
     div
       img.logo(src="/images/logo.png" alt="flying pigs logo")

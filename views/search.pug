@@ -1,0 +1,12 @@
+extends layout
+
+block main
+  form(action=`/searchy` method="get")
+    dl
+      dt
+        label(for="search") Search for artist or title
+      dd
+        input(type="text" name="search" placeholder="" value=search_term)
+
+    fieldset.actions
+      input(type="submit" value="Search")
