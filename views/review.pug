@@ -8,7 +8,9 @@ block main
       img(src=`${review.cover_art}`)
     div(class="item score-box")  
       div(class="score-circle")
-        span(class="score")= review.score*0.1
+        span(class="score")= (review.score*0.1).toFixed(1)
+  div(class="album-detail")
+      p(class="detail")= review.detail
   div(class="review_container")
     p(class="review_text")= review.review_text
     a(class="review_edit" href=`/reviews/${review.id}/edit`) ... edit review

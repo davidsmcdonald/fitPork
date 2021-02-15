@@ -30,7 +30,7 @@ block main
               value=score)
               
       dt
-        label(for="cover_url") Enter the url for your album art.  You can find most at #[a(href="https://musicbrainz.org/") musicbrainz.org]. jpg, gif, or png formats only!: 
+        label(for="cover_url") Enter the url for your album art. You can find most at #[a(href="https://musicbrainz.org/") musicbrainz.org]. jpg, gif, or png formats only!: 
       dd
         input(type="text"
               id="url"
@@ -45,6 +45,14 @@ block main
               name="reviewText"
               placeholder="Review Text"
               value=reviewText)
+      
+      dt
+        label(for="details") Enter additional details to display:
+      dd
+        textarea(id="details"
+              name="details"
+              placeholder="Details"
+              value=details)
 
     fieldset.actions
       input(type="submit" value="Save")

@@ -1,6 +1,11 @@
 extends layout
 
 block main
+  div
+    h2(class="about") Fitpork stores and displays your personal record collection in a Pitchfork-inspired fashion.
+    img(src="/images/logo.png" alt="flying pigs logo"  class="logo")
+  
+  
   form(action=`/users/signin` method="post")
     dl
       dt

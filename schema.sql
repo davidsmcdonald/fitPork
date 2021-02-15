@@ -4,6 +4,7 @@ CREATE TABLE reviews (
   artist text NOT NULL,
   username text NOT NULL,
   score integer,
+  detail text,
   review_text text,
   cover_art text DEFAULT 'https://www.pngkey.com/png/full/402-4029485_phonograph-record-lp-record-phonograph-cylinder-gramophone-vinyl.png'
 );

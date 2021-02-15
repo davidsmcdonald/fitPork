@@ -179,6 +179,7 @@ app.post('/review',
         title,
         artist,
         score,
+        details,
         reviewText,
         url,
         flash: req.flash(),
@@ -292,6 +293,7 @@ app.post('/reviews/:reviewId/edit',
         artist,
         score,
         reviewText,
+        detail,
         url,
         flash: req.flash(),
       });
@@ -321,17 +323,3 @@ app.use((err, req, res, _next) => {
 app.listen(port, host, () => {
   console.log(`Todos is listening on port ${port} of ${host}!`);
 });
-
-// app.use(session({
-//   cookie: {
-//     httpOnly: true,
-//     maxAge: 31 * 24 * 60 * 60 * 1000, // 31 days in millseconds
-//     path: '/',
-//     secure: false,
-//   },
-//   name: 'launch-school-todos-session-id',
-//   resave: false,
-//   saveUninitialized: true,
-//   secret: 'this is not very secure',
-//   store: new LokiStore({}),
-// }));
